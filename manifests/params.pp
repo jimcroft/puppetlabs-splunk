@@ -72,12 +72,17 @@
 # Requires: nothing
 #
 class splunk::params (
-  $version      = '6.2.2',
-  $build        = '255606',
-  $legacy_mode  = false,
-  $src_root     = 'puppet:///modules/splunk',
-  $splunkd_port = '8089',
-  $logging_port = '9997',
+  $version            = '6.2.2',
+  $build              = '255606',
+  $legacy_mode        = false,
+  $src_root           = 'puppet:///modules/splunk',
+  $splunkd_port       = '8089',
+  $logging_port       = '9997',
+  $master_uri         = "https://splunk:${splunkd_port}",
+  $replication_port   = '9887',
+  $replication_factor = '1',
+  $search_factor      = '1',
+  $pass4SymmKey       = 'splunk',
 ) {
 
   # Based on the small number of inputs above, we can construct sane defaults
