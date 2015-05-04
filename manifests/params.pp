@@ -77,12 +77,14 @@ class splunk::params (
   $legacy_mode        = false,
   $src_root           = 'puppet:///modules/splunk',
   $splunkd_port       = '8089',
+  $splunkd_listen     = '127.0.0.1',
   $logging_port       = '9997',
   $master_uri         = "https://splunk:${splunkd_port}",
   $replication_port   = '9887',
   $replication_factor = '1',
   $search_factor      = '1',
   $pass4SymmKey       = 'splunk',
+  $pkg_provider       = undef,
 ) {
 
   # Based on the small number of inputs above, we can construct sane defaults
@@ -155,11 +157,13 @@ class splunk::params (
   }
 
   # Settings common to an OS family
-  case $::osfamily {
-    default:   { $pkg_provider = undef  } # Don't define a $pkg_provider
-    'RedHat':  { $pkg_provider = 'rpm'  }
-    'Debian':  { $pkg_provider = 'dpkg' }
-    'Solaris': { $pkg_provider = 'sun'  }
+  if $pkg_provider == undef {
+    case $::osfamily {
+      default:   { $pkg_provider = undef  } # Don't define a $pkg_provider
+      'RedHat':  { $pkg_provider = 'rpm'  }
+      'Debian':  { $pkg_provider = 'dpkg' }
+      'Solaris': { $pkg_provider = 'sun'  }
+    }
   }
 
   # Settings specific to an architecture as well as an OS family

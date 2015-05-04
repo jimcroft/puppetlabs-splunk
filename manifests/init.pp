@@ -46,13 +46,14 @@ class splunk (
   $splunkd_port       = $splunk::params::splunkd_port,
   $version            = $splunk::params::version,
   $build              = $splunk::params::build,
+  $pkg_provider       = $splunk::params::pkg_provider,
   $src_root           = $splunk::params::src_root,
   $master_uri         = $splunk::params::master_uri,
   $replication_port   = $splunk::params::replication_port,
   $replication_factor = $splunk::params::replication_factor,
   $search_factor      = $splunk::params::search_factor,
   $pass4SymmKey       = $splunk::params::pass4SymmKey,
-  $splunkd_listen     = '127.0.0.1',
+  $splunkd_listen     = $splunk::params::splunkd_listen,
   $web_port           = '8000',
   $purge_inputs       = false,
   $purge_outputs      = false,
@@ -67,18 +68,30 @@ class splunk (
   $pkg_path_parts  = [$staging::path, $staging_subdir, $staged_package]
   $pkg_source      = join($pkg_path_parts, $path_delimiter)
 
-  staging::file { $staged_package:
-    source => $package_source,
-    subdir => $staging_subdir,
-    before => Package[$package_name],
-  }
 
-  package { $package_name:
-    ensure   => installed,
-    provider => $splunk::params::pkg_provider,
-    source   => $pkg_source,
-    before   => Service[$virtual_service],
-    tag      => 'splunk_server',
+  # If installing from apt/yum repos no need to stage installation 
+  # package on locak filesystem first
+  if $pkg_provider == 'apt' or $pkg_provider == 'yum' {
+    package { $package_name:
+      ensure   => $version,
+      provider => $splunk::params::pkg_provider,
+      before   => Service[$virtual_service],
+      tag      => 'splunk_server',
+    }
+  } else {
+    staging::file { $staged_package:
+      source => $package_source,
+      subdir => $staging_subdir,
+      before => Package[$package_name],
+    }
+
+    package { $package_name:
+      ensure   => "${version}-${build}",
+      provider => $splunk::params::pkg_provider,
+      source   => $pkg_source,
+      before   => Service[$virtual_service],
+      tag      => 'splunk_server',
+    }
   }
 
   splunk_input { 'default_host':

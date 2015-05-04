@@ -10,9 +10,11 @@ RSpec.configure do |c|
     puppet_module_install(source: module_root, module_name: 'splunk')
 
     hosts.each do |host|
-      on host, puppet('module', 'install', 'nanliu-staging', '--version', '0.3.1'), acceptable_exit_codes: [0, 1]
-      on host, puppet('module', 'install', 'puppetlabs-stdlib', '--version', '3.0.0'), acceptable_exit_codes: [0, 1]
-      on host, puppet('module', 'install', 'puppetlabs-inifile', '--version', '1.0.0'), acceptable_exit_codes: [0, 1]
+      on host, puppet('module', 'install', 'nanliu-staging', '--version', '0.3.1')
+      on host, puppet('module', 'install', 'puppetlabs-stdlib', '--version', '4.6.0')
+      on host, puppet('module', 'install', 'puppetlabs-inifile', '--version', '1.0.0')
+      on host, puppet('module', 'install', 'puppetlabs-apt', '--version', '2.0.1')
+      on host, puppet('module', 'install', 'example42-yum', '--version', '2.1.18')
     end
   end
 end

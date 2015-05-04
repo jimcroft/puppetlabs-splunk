@@ -2,9 +2,29 @@ require 'spec_helper_acceptance'
 require 'pry'
 
 pp = <<-EOS
+  include apt
+
+  exec { 'apt-get update':
+    command   => '/bin/true',
+    unless    => '/usr/bin/apt-get update',
+    loglevel  => 'info',
+    logoutput => 'on_failure',
+    before    => Class['splunk']
+  }
+
+  apt::source { 'fanduel':
+    location => 'http://apt.east.fdbox.net',
+    repos    => 'main',
+    key      => {
+      id     => '7CC084EB12087BED0EADB2466AA630653DFA4BD3',
+      source => 'http://apt.east.fdbox.net/fanduelpkg.gpg.key',
+    },
+    before   => Exec['apt-get update'],
+  }
+
   class { 'splunk::params':
-    version     => '6.2.2',
-    build       => '255606',
+    version      => '6.2.2',
+    pkg_provider => 'apt',
   }
   class { 'splunk':
     splunkd_listen => '0.0.0.0',
